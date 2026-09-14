@@ -7,12 +7,12 @@ export type Settings = {
   badge_text: string;
   bio: string;
   hero_photo_url: string | null;
-  hero_photo_date: string | null;
-  hero_photo_caption: string | null;
-  hero_photo_subtitle: string | null;
+  hero_photo_date?: string;
+  hero_photo_caption?: string;
+  hero_photo_subtitle?: string;
   place: string;
   song_title: string;
   song_url: string | null;
-  song_type: 'youtube' | 'mp3' | 'none' | null;
+  song_type?: 'youtube' | 'mp3' | 'none' | null;
   updated_at: string;
 };
