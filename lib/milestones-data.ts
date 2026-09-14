@@ -54,21 +54,6 @@ export type WishlistRow = {
   created_at: string;
 };
 
-export const photoStrip: { label: string; image: string }[] = [
-  {
-    label: 'Tahun 1 ✨',
-    image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&q=80',
-  },
-  {
-    label: 'Tahun 2 🌅',
-    image: 'https://images.unsplash.com/photo-1532978379173-523e16f371f9?w=400&q=80',
-  },
-  {
-    label: 'Tahun 3 🥂',
-    image: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=400&q=80',
-  },
-];
-
 // ─── Helper: hitung target_date dari start_date + offset_days ───
 function calcTargetDate(startDate: string, offsetDays: number): Date {
   const start = new Date(startDate);

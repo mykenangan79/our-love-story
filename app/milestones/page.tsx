@@ -11,7 +11,6 @@ import {
   rowToMilestone,
   rowToWishlist,
   calcProgress,
-  photoStrip,
   type Milestone,
   type MilestoneRow,
   type WishlistItem as WItem,
@@ -77,21 +76,23 @@ function fireConfetti(originX?: number, originY?: number, count = 140) {
 export default function MilestonesPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [wishlist, setWishlist] = useState<WItem[]>([]);
+  const [photos, setPhotos] = useState<{ id: string; title: string; photo_url: string }[]>([]);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
-      const [milestonesRes, wishlistRes, settingsRes] = await Promise.all([
-        supabase
-          .from('milestones')
-          .select('*')
-          .order('offset_days', { ascending: true }),
-        supabase
-          .from('wishlist')
-          .select('*')
-          .order('created_at', { ascending: true }),
+      const [milestonesRes, wishlistRes, settingsRes, photosRes] = await Promise.all([
+        supabase.from('milestones').select('*').order('offset_days', { ascending: true }),
+        supabase.from('wishlist').select('*').order('created_at', { ascending: true }),
         supabase.from('settings').select('start_date').single(),
+        supabase
+          .from('photos')
+          .select('id, title, photo_url')
+          .eq('is_public', true)
+          .order('featured', { ascending: false })
+          .order('date', { ascending: false })
+          .limit(3),
       ]);
 
       const sd = settingsRes.data?.start_date ?? null;
@@ -106,6 +107,9 @@ export default function MilestonesPage() {
       }
       if (wishlistRes.data) {
         setWishlist((wishlistRes.data as WishlistRow[]).map(rowToWishlist));
+      }
+      if (photosRes.data) {
+        setPhotos(photosRes.data);
       }
       setLoading(false);
     }
@@ -333,27 +337,25 @@ export default function MilestonesPage() {
                     </p>
                   </div>
                   <div className="flex items-center -space-x-4">
-                    {photoStrip.map((p, i) => (
-                      <div
-                        key={i}
-                        className={`w-20 h-24 p-1 rounded-lg bg-surface-container-lowest shadow-md transition-all hover:rotate-0 hover:scale-110 hover:z-20 ${
-                          i === 0
-                            ? 'rotate-[-6deg]'
-                            : i === 1
-                            ? 'rotate-[3deg] z-10'
-                            : 'rotate-[-2deg]'
-                        }`}
-                      >
-                        <img
-                          className="w-full h-16 object-cover rounded"
-                          alt={p.label}
-                          src={p.image}
-                        />
-                        <p className="text-[9px] text-center text-on-surface-variant mt-0.5">
-                          {p.label}
-                        </p>
+                    {photos.length > 0 ? (
+                      photos.map((p, i) => (
+                        <div
+                          key={p.id}
+                          className={`w-20 h-24 p-1 rounded-lg bg-surface-container-lowest shadow-md transition-all hover:rotate-0 hover:scale-110 hover:z-20 ${
+                            i === 0 ? 'rotate-[-6deg]' : i === 1 ? 'rotate-[3deg] z-10' : 'rotate-[-2deg]'
+                          }`}
+                        >
+                          <img className="w-full h-16 object-cover rounded" alt={p.title} src={p.photo_url} />
+                          <p className="text-[9px] text-center text-on-surface-variant mt-0.5 truncate">
+                            {p.title}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-xs text-on-surface-variant italic">
+                        Belum ada foto di galeri 📷
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
